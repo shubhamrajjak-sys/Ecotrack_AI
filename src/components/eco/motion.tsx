@@ -109,10 +109,11 @@ export function LiftCard({
   const ok = useMotionOk();
   return (
     <motion.div
-      whileHover={ok ? { y: -6, boxShadow: "var(--shadow-lift)" } : undefined}
-      whileTap={onClick && ok ? { scale: 0.99 } : undefined}
+      whileHover={ok ? { y: -6, boxShadow: "var(--shadow-lift)" } : {}}
+      whileTap={onClick && ok ? { scale: 0.99 } : {}}
       transition={{ type: "spring", stiffness: 300, damping: 24 }}
-      onClick={onClick}
+      onClick={onClick ?? (() => {})}
+
       className={cn(
         "glass-panel rounded-3xl p-6",
         onClick && "cursor-pointer",
