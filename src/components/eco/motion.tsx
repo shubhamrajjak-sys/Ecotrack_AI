@@ -22,34 +22,32 @@ export function Reveal({
   children,
   delay = 0,
   className,
-  as = "div",
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
-  as?: "div" | "section" | "li";
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const ok = useMotionOk();
-  const Comp = motion[as];
 
   if (!ok) {
     return <div className={className}>{children}</div>;
   }
 
   return (
-    <Comp
+    <motion.div
       ref={ref}
       initial={{ opacity: 0, y: 28 }}
-      animate={inView ? { opacity: 1, y: 0 } : undefined}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
       transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
       className={className}
     >
       {children}
-    </Comp>
+    </motion.div>
   );
 }
+
 
 /** Animated statistics counter. */
 export function Counter({
