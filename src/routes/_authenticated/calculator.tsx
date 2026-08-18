@@ -72,7 +72,7 @@ function CalculatorPage() {
       food_kg: breakdown.foodKg,
       waste_kg: breakdown.wasteKg,
       total_kg: breakdown.totalKg,
-      inputs: input as unknown as Record<string, unknown>,
+      inputs: JSON.parse(JSON.stringify(input)) as Json,
     });
 
     if (error) {
@@ -87,10 +87,13 @@ function CalculatorPage() {
         .map((t) => ({
           user_id: uid,
           mode: t.mode,
+          origin_label: "Home",
+          destination_label: "Campus",
           distance_km: t.distanceKm,
           trips_per_week: t.tripsPerWeek,
         })),
     );
+
 
     await awardBadge(uid, "green_starter");
     if (input.transport.some((t) => ["walking", "bicycle", "bus", "train"].includes(t.mode))) {
