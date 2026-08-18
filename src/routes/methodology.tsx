@@ -24,13 +24,12 @@ export const Route = createFileRoute("/methodology")({
 
 function Methodology() {
   const factors = useQuery(factorsQuery);
-  const grouped = (factors.data?.rows ?? []).reduce<Record<string, typeof factors.data.rows>>(
-    (acc, row) => {
-      (acc[row.category] ||= []).push(row);
-      return acc;
-    },
-    {} as Record<string, NonNullable<typeof factors.data>["rows"]>,
-  );
+  const rows = factors.data?.rows ?? [];
+  const grouped = rows.reduce<Record<string, typeof rows>>((acc, row) => {
+    (acc[row.category] ||= []).push(row);
+    return acc;
+  }, {});
+
 
   return (
     <div className="min-h-screen bg-gradient-hero">
