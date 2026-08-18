@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
-import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
+import { signInWithGoogle } from "@/lib/oauth";
 
 const searchSchema = z.object({
   mode: z.enum(["signin", "signup", "reset"]).catch("signin"),
@@ -86,9 +86,7 @@ function AuthPage() {
 
   async function handleGoogle() {
     setBusy(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
+    const result = await signInWithGoogle();
     if (result.error) {
       setBusy(false);
       toast.error("Google sign-in failed", { description: String(result.error) });
