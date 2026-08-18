@@ -14,16 +14,311 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      achievements: {
+        Row: {
+          badge_code: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_code: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_code?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      carbon_calculations: {
+        Row: {
+          created_at: string
+          energy_kg: number
+          food_kg: number
+          id: string
+          inputs: Json
+          period: string
+          total_kg: number
+          transport_kg: number
+          user_id: string
+          waste_kg: number
+        }
+        Insert: {
+          created_at?: string
+          energy_kg?: number
+          food_kg?: number
+          id?: string
+          inputs?: Json
+          period?: string
+          total_kg?: number
+          transport_kg?: number
+          user_id: string
+          waste_kg?: number
+        }
+        Update: {
+          created_at?: string
+          energy_kg?: number
+          food_kg?: number
+          id?: string
+          inputs?: Json
+          period?: string
+          total_kg?: number
+          transport_kg?: number
+          user_id?: string
+          waste_kg?: number
+        }
+        Relationships: []
+      }
+      emission_factors: {
+        Row: {
+          category: string
+          factor: number
+          id: string
+          key: string
+          label: string
+          methodology: string | null
+          source: string
+          unit: string
+        }
+        Insert: {
+          category: string
+          factor: number
+          id?: string
+          key: string
+          label: string
+          methodology?: string | null
+          source: string
+          unit: string
+        }
+        Update: {
+          category?: string
+          factor?: number
+          id?: string
+          key?: string
+          label?: string
+          methodology?: string | null
+          source?: string
+          unit?: string
+        }
+        Relationships: []
+      }
+      goals: {
+        Row: {
+          category: string
+          created_at: string
+          current_value: number
+          deadline: string | null
+          id: string
+          status: string
+          target_value: number
+          title: string
+          unit: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          current_value?: number
+          deadline?: string | null
+          id?: string
+          status?: string
+          target_value: number
+          title: string
+          unit?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          current_value?: number
+          deadline?: string | null
+          id?: string
+          status?: string
+          target_value?: number
+          title?: string
+          unit?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          campus: string | null
+          created_at: string
+          department: string | null
+          display_name: string
+          eco_points: number
+          id: string
+          onboarded: boolean
+          reduction_target_pct: number
+          role_type: string
+          share_on_leaderboard: boolean
+          streak_days: number
+          updated_at: string
+        }
+        Insert: {
+          campus?: string | null
+          created_at?: string
+          department?: string | null
+          display_name?: string
+          eco_points?: number
+          id: string
+          onboarded?: boolean
+          reduction_target_pct?: number
+          role_type?: string
+          share_on_leaderboard?: boolean
+          streak_days?: number
+          updated_at?: string
+        }
+        Update: {
+          campus?: string | null
+          created_at?: string
+          department?: string | null
+          display_name?: string
+          eco_points?: number
+          id?: string
+          onboarded?: boolean
+          reduction_target_pct?: number
+          role_type?: string
+          share_on_leaderboard?: boolean
+          streak_days?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      recommendations: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          id: string
+          impact_kg: number
+          rank: number
+          source: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          category: string
+          created_at?: string
+          id?: string
+          impact_kg?: number
+          rank?: number
+          source?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          id?: string
+          impact_kg?: number
+          rank?: number
+          source?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      travel_records: {
+        Row: {
+          co2e_kg: number
+          created_at: string
+          destination_label: string
+          distance_km: number
+          distance_source: string
+          id: string
+          mode: string
+          origin_label: string
+          trips_per_week: number
+          user_id: string
+        }
+        Insert: {
+          co2e_kg?: number
+          created_at?: string
+          destination_label: string
+          distance_km: number
+          distance_source?: string
+          id?: string
+          mode: string
+          origin_label: string
+          trips_per_week?: number
+          user_id: string
+        }
+        Update: {
+          co2e_kg?: number
+          created_at?: string
+          destination_label?: string
+          distance_km?: number
+          distance_source?: string
+          id?: string
+          mode?: string
+          origin_label?: string
+          trips_per_week?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      campus_analytics: {
+        Args: never
+        Returns: {
+          energy_kg: number
+          food_kg: number
+          participants: number
+          total_kg: number
+          transport_kg: number
+          waste_kg: number
+        }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          department: string
+          display_name: string
+          eco_points: number
+          streak_days: number
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "student" | "faculty" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +445,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["student", "faculty", "admin"],
+    },
   },
 } as const
