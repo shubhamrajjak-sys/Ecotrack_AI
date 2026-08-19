@@ -73,8 +73,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        <Button variant="ghost" className="justify-start" onClick={() => void signOut()}>
-          <LogOut className="size-4" /> Sign out
+        <Button variant="ghost" className="justify-start" onClick={() => signOut()}>
+          <LogOut className="size-4" /> Change name
         </Button>
       </aside>
 

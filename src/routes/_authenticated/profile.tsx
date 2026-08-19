@@ -137,13 +137,13 @@ function Profile() {
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Signed in as
               </p>
-              <p className="mt-2 break-all text-sm font-medium">{user?.email}</p>
+              <p className="mt-2 break-all text-sm font-medium">{user?.name}</p>
               <p className="mt-4 text-xs text-muted-foreground">
                 Eco points: {profile.data?.eco_points ?? 0} · Streak:{" "}
                 {profile.data?.streak_days ?? 0} days
               </p>
-              <Button variant="outline" className="mt-5 w-full" onClick={() => void signOut()}>
-                <LogOut className="size-4" /> Sign out
+              <Button variant="outline" className="mt-5 w-full" onClick={() => signOut()}>
+                <LogOut className="size-4" /> Change name
               </Button>
             </LiftCard>
           </div>

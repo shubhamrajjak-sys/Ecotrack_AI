@@ -18,8 +18,7 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const { scrollY } = useScroll();
   const { user, loading, signOut } = useAuth();
-  const avatarUrl = (user?.user_metadata?.["avatar_url"] as string | undefined) ?? undefined;
-  const initial = (user?.email ?? "?").charAt(0).toUpperCase();
+  const initial = (user?.name ?? "?").charAt(0).toUpperCase();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 24));
@@ -68,31 +67,27 @@ export function SiteHeader() {
                 to="/profile"
                 className="flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-sm text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
               >
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="" className="size-7 rounded-full object-cover" />
-                ) : (
+                {(
                   <span className="flex size-7 items-center justify-center rounded-full bg-gradient-primary text-xs font-semibold text-primary-foreground">
                     {initial}
                   </span>
                 )}
-                <span className="max-w-[10rem] truncate">{user.email}</span>
+                <span className="max-w-[10rem] truncate">{user.name}</span>
               </Link>
               <Button variant="hero" size="sm" asChild>
                 <Link to="/dashboard">Open dashboard</Link>
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => void signOut()}>
-                Sign out
+              <Button variant="ghost" size="sm" onClick={() => signOut()}>
+                Change name
               </Button>
             </>
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>
-                <Link to="/auth">Sign in</Link>
+                <Link to="/auth">Enter name</Link>
               </Button>
               <Button variant="hero" size="sm" asChild>
-                <Link to="/auth" search={{ mode: "signup" }}>
-                  Get started
-                </Link>
+                <Link to="/auth">Get started</Link>
               </Button>
             </>
           )}
