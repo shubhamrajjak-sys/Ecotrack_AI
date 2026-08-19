@@ -30,7 +30,7 @@ export const profileQuery = (userId: string) =>
         .eq("id", userId)
         .maybeSingle();
       if (error) throw error;
-      return (data as ProfileRow | null) ?? null;
+      return (data as unknown as ProfileRow | null) ?? null;
     },
   });
 
@@ -45,7 +45,7 @@ export const calculationsQuery = (userId: string) =>
         .order("created_at", { ascending: false })
         .limit(12);
       if (error) throw error;
-      return (data ?? []) as CalculationRow[];
+      return (data ?? []) as unknown as CalculationRow[];
     },
   });
 
@@ -59,7 +59,7 @@ export const goalsQuery = (userId: string) =>
         .eq("user_id", userId)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as GoalRow[];
+      return (data ?? []) as unknown as GoalRow[];
     },
   });
 
@@ -74,7 +74,7 @@ export const travelQuery = (userId: string) =>
         .order("created_at", { ascending: false })
         .limit(20);
       if (error) throw error;
-      return (data ?? []) as TravelRow[];
+      return (data ?? []) as unknown as TravelRow[];
     },
   });
 
@@ -87,7 +87,7 @@ export const achievementsQuery = (userId: string) =>
         .select("*")
         .eq("user_id", userId);
       if (error) throw error;
-      return (data ?? []) as AchievementRow[];
+      return (data ?? []) as unknown as AchievementRow[];
     },
   });
 
