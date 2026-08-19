@@ -22,15 +22,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let active = true;
+    let receivedAuthEvent = false;
+
+    // Subscribe before reading storage so a redirect/session event cannot be
+    // missed between the initial lookup and listener registration.
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+      if (!active) return;
+      receivedAuthEvent = true;
       setSession(next);
       setLoading(false);
     });
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+
+    void supabase.auth.getSession().then(({ data, error }) => {
+      if (!active || receivedAuthEvent) return;
+      setSession(error ? null : data.session);
       setLoading(false);
     });
-    return () => sub.subscription.unsubscribe();
+
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const value = useMemo<AuthState>(

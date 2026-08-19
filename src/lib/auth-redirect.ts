@@ -14,18 +14,26 @@ export async function completeOAuthRedirect(): Promise<boolean> {
   const url = new URL(window.location.href);
   const hash = new URLSearchParams(url.hash.replace(/^#/, ""));
   const code = url.searchParams.get("code");
-  const hasImplicitTokens = Boolean(hash.get("access_token"));
+  const accessToken = hash.get("access_token");
+  const refreshToken = hash.get("refresh_token");
+  const hasImplicitTokens = Boolean(accessToken && refreshToken);
 
   if (!code && !hasImplicitTokens) return false;
 
   try {
+    // The client can automatically restore a session from the URL. Check that
+    // first so a one-time PKCE code is never exchanged twice.
+    const { data: existing } = await supabase.auth.getSession();
+    if (existing.session) return true;
+
     if (code) {
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       if (error) throw error;
-    } else {
-      const access_token = hash.get("access_token")!;
-      const refresh_token = hash.get("refresh_token") ?? "";
-      const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+    } else if (accessToken && refreshToken) {
+      const { error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
       if (error) throw error;
     }
   } catch (error) {
@@ -39,6 +47,6 @@ export async function completeOAuthRedirect(): Promise<boolean> {
     window.history.replaceState({}, "", url.pathname + url.search);
   }
 
-  const { data } = await supabase.auth.getSession();
-  return Boolean(data.session);
+  const { data, error } = await supabase.auth.getSession();
+  return !error && Boolean(data.session);
 }
