@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import {
   ArrowRight,
@@ -9,6 +9,7 @@ import {
   Flame,
   Leaf,
   LineChart,
+  LogOut,
   MapPin,
   Recycle,
   Sparkles,
@@ -23,6 +24,7 @@ import { SiteFooter } from "@/components/eco/SiteFooter";
 import { SiteHeader } from "@/components/eco/SiteHeader";
 import { Counter, LiftCard, Reveal, useMotionOk } from "@/components/eco/motion";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -80,6 +82,12 @@ const FEATURES = [
 
 function Landing() {
   const ok = useMotionOk();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const handleSignOut = () => {
+    signOut();
+    void navigate({ to: "/auth", replace: true });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -137,6 +145,11 @@ function Landing() {
               <Button variant="glass" size="xl" asChild>
                 <Link to="/dashboard">Explore Dashboard</Link>
               </Button>
+              {user && (
+                <Button variant="ghost" size="xl" onClick={handleSignOut}>
+                  <LogOut className="size-4" /> Sign Out
+                </Button>
+              )}
             </motion.div>
 
             <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
