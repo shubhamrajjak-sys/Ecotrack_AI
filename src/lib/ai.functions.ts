@@ -1,8 +1,41 @@
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createServerFn } from "@tanstack/react-start";
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { z } from "zod";
+
+const SnapshotInput = z.object({
+  hasData: z.boolean(),
+  latest: z
+    .object({
+      total_kg: z.number(),
+      transport_kg: z.number(),
+      energy_kg: z.number(),
+      food_kg: z.number(),
+      waste_kg: z.number(),
+      created_at: z.string(),
+    })
+    .nullable(),
+  history: z.array(z.object({ total_kg: z.number(), created_at: z.string() })).max(24),
+  goals: z
+    .array(
+      z.object({
+        title: z.string().max(200),
+        target_value: z.number(),
+        current_value: z.number(),
+        status: z.string().max(40),
+      }),
+    )
+    .max(20),
+  travel: z
+    .array(
+      z.object({
+        mode: z.string().max(40),
+        distance_km: z.number(),
+        trips_per_week: z.number(),
+      }),
+    )
+    .max(20),
+});
 
 const ChatInput = z.object({
   messages: z
@@ -14,74 +47,22 @@ const ChatInput = z.object({
     )
     .min(1)
     .max(30),
+  snapshot: SnapshotInput,
 });
 
-type Snapshot = {
-  hasData: boolean;
-  latest: {
-    total_kg: number;
-    transport_kg: number;
-    energy_kg: number;
-    food_kg: number;
-    waste_kg: number;
-    created_at: string;
-  } | null;
-  history: { total_kg: number; created_at: string }[];
-  goals: { title: string; target_value: number; current_value: number; status: string }[];
-  travel: { mode: string; distance_km: number; trips_per_week: number }[];
-};
-
 /**
- * AI Sustainability Coach. Runs server-side only; the model never sees data the
- * signed-in user does not own, and it is explicitly told not to invent data.
+ * AI Sustainability Coach. Runs server-side only; the model only sees the local
+ * data the browser sends with the request, and it is explicitly told not to invent data.
  */
 export const coachChat = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => ChatInput.parse(input))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) {
       return { ok: false as const, reason: "not_configured" as const };
     }
 
-    const { supabase, userId } = context;
-
-    const [calcRes, goalRes, travelRes] = await Promise.all([
-      supabase
-        .from("carbon_calculations")
-        .select("total_kg, transport_kg, energy_kg, food_kg, waste_kg, created_at")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(12),
-      supabase
-        .from("goals")
-        .select("title, target_value, current_value, status")
-        .eq("user_id", userId)
-        .limit(10),
-      supabase
-        .from("travel_records")
-        .select("mode, distance_km, trips_per_week")
-        .eq("user_id", userId)
-        .limit(10),
-    ]);
-
-    const calcs = calcRes.data ?? [];
-    const snapshot: Snapshot = {
-      hasData: calcs.length > 0,
-      latest: calcs[0] ?? null,
-      history: calcs.map((c) => ({ total_kg: Number(c.total_kg), created_at: c.created_at })),
-      goals: (goalRes.data ?? []).map((g) => ({
-        title: g.title,
-        target_value: Number(g.target_value),
-        current_value: Number(g.current_value),
-        status: g.status,
-      })),
-      travel: (travelRes.data ?? []).map((t) => ({
-        mode: t.mode,
-        distance_km: Number(t.distance_km),
-        trips_per_week: t.trips_per_week,
-      })),
-    };
+    const snapshot = data.snapshot;
 
     const system = [
       "You are the EcoTrack AI Coach, a campus sustainability assistant.",
