@@ -137,6 +137,11 @@ function Landing() {
               <Button variant="glass" size="xl" asChild>
                 <Link to="/dashboard">Explore Dashboard</Link>
               </Button>
+              {user && (
+                <Button variant="ghost" size="xl" onClick={handleSignOut}>
+                  <LogOut className="size-4" /> Sign Out
+                </Button>
+              )}
             </motion.div>
 
             <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
