@@ -1,18 +1,21 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { supabase } from "@/integrations/supabase/client";
-import { indexFactors, type EmissionFactor } from "@/lib/carbon";
+import {
+  DEFAULT_FACTORS,
+  localDb as supabase,
+  type AchievementRow,
+  type CalculationRow,
+  type GoalRow,
+  type ProfileRow,
+  type TravelRow,
+} from "@/lib/local-db";
+import { indexFactors } from "@/lib/carbon";
 
 export const factorsQuery = queryOptions({
   queryKey: ["emission_factors"],
-  staleTime: 1000 * 60 * 30,
+  staleTime: Infinity,
   queryFn: async () => {
-    const { data, error } = await supabase
-      .from("emission_factors")
-      .select("*")
-      .order("category");
-    if (error) throw error;
-    const rows = (data ?? []) as EmissionFactor[];
+    const rows = DEFAULT_FACTORS;
     return { rows, index: indexFactors(rows) };
   },
 });
@@ -27,7 +30,7 @@ export const profileQuery = (userId: string) =>
         .eq("id", userId)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return (data as unknown as ProfileRow | null) ?? null;
     },
   });
 
@@ -42,7 +45,7 @@ export const calculationsQuery = (userId: string) =>
         .order("created_at", { ascending: false })
         .limit(12);
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as unknown as CalculationRow[];
     },
   });
 
@@ -56,7 +59,7 @@ export const goalsQuery = (userId: string) =>
         .eq("user_id", userId)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as unknown as GoalRow[];
     },
   });
 
@@ -71,7 +74,7 @@ export const travelQuery = (userId: string) =>
         .order("created_at", { ascending: false })
         .limit(20);
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as unknown as TravelRow[];
     },
   });
 
@@ -84,7 +87,7 @@ export const achievementsQuery = (userId: string) =>
         .select("*")
         .eq("user_id", userId);
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as unknown as AchievementRow[];
     },
   });
 

@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { localDb as supabase } from "@/lib/local-db";
 import { BADGES } from "@/lib/carbon";
 import { achievementsQuery, addEcoPoints, goalsQuery, profileQuery } from "@/lib/data";
 

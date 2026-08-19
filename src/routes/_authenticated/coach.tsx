@@ -8,6 +8,9 @@ import { AppShell, PageHeading } from "@/components/eco/AppShell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { coachChat } from "@/lib/ai.functions";
+import { useAuth } from "@/hooks/useAuth";
+import { calculationsQuery, goalsQuery, travelQuery } from "@/lib/data";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/coach")({
   head: () => ({
@@ -32,6 +35,11 @@ const SUGGESTIONS = [
 
 function Coach() {
   const send = useServerFn(coachChat);
+  const { user } = useAuth();
+  const uid = user?.id ?? "";
+  const calcs = useQuery({ ...calculationsQuery(uid), enabled: !!uid });
+  const goals = useQuery({ ...goalsQuery(uid), enabled: !!uid });
+  const travel = useQuery({ ...travelQuery(uid), enabled: !!uid });
   const [messages, setMessages] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -49,7 +57,37 @@ function Coach() {
     setDraft("");
     setBusy(true);
     try {
-      const res = await send({ data: { messages: next } });
+      const rows = calcs.data ?? [];
+      const latest = rows[0];
+      const snapshot = {
+        hasData: rows.length > 0,
+        latest: latest
+          ? {
+              total_kg: Number(latest.total_kg),
+              transport_kg: Number(latest.transport_kg),
+              energy_kg: Number(latest.energy_kg),
+              food_kg: Number(latest.food_kg),
+              waste_kg: Number(latest.waste_kg),
+              created_at: String(latest.created_at),
+            }
+          : null,
+        history: rows.slice(0, 12).map((c) => ({
+          total_kg: Number(c.total_kg),
+          created_at: String(c.created_at),
+        })),
+        goals: (goals.data ?? []).slice(0, 10).map((g) => ({
+          title: String(g.title),
+          target_value: Number(g.target_value),
+          current_value: Number(g.current_value),
+          status: String(g.status),
+        })),
+        travel: (travel.data ?? []).slice(0, 10).map((t) => ({
+          mode: String(t.mode),
+          distance_km: Number(t.distance_km),
+          trips_per_week: Number(t.trips_per_week),
+        })),
+      };
+      const res = await send({ data: { messages: next, snapshot } });
       const reply =
         res.ok === true
           ? res.text

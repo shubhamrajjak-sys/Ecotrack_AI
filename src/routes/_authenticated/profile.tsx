@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { localDb as supabase } from "@/lib/local-db";
 import { profileQuery } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -29,6 +29,11 @@ export const Route = createFileRoute("/_authenticated/profile")({
 
 function Profile() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const changeName = () => {
+    signOut();
+    void navigate({ to: "/auth", replace: true });
+  };
   const uid = user?.id ?? "";
   const qc = useQueryClient();
   const profile = useQuery({ ...profileQuery(uid), enabled: !!uid });
@@ -137,13 +142,13 @@ function Profile() {
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Signed in as
               </p>
-              <p className="mt-2 break-all text-sm font-medium">{user?.email}</p>
+              <p className="mt-2 break-all text-sm font-medium">{user?.name}</p>
               <p className="mt-4 text-xs text-muted-foreground">
                 Eco points: {profile.data?.eco_points ?? 0} · Streak:{" "}
                 {profile.data?.streak_days ?? 0} days
               </p>
-              <Button variant="outline" className="mt-5 w-full" onClick={() => void signOut()}>
-                <LogOut className="size-4" /> Sign out
+              <Button variant="outline" className="mt-5 w-full" onClick={changeName}>
+                <LogOut className="size-4" /> Change name
               </Button>
             </LiftCard>
           </div>
