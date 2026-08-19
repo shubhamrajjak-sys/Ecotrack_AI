@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { supabase } from "@/integrations/supabase/client";
+import { localDb as supabase } from "@/lib/local-db";
 import { indexFactors, type EmissionFactor } from "@/lib/carbon";
 
 export const factorsQuery = queryOptions({
