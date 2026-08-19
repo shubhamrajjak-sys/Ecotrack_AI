@@ -222,3 +222,59 @@ export const localDb = {
   },
   factors: selectFactors,
 };
+
+export type ProfileRow = {
+  id: string;
+  display_name: string | null;
+  department: string | null;
+  campus: string | null;
+  role_type: string;
+  reduction_target_pct: number;
+  share_on_leaderboard: boolean;
+  eco_points: number;
+  streak_days: number;
+  onboarded: boolean;
+  created_at: string;
+};
+
+export type CalculationRow = {
+  id: string;
+  user_id: string;
+  transport_kg: number;
+  energy_kg: number;
+  food_kg: number;
+  waste_kg: number;
+  total_kg: number;
+  inputs: unknown;
+  created_at: string;
+};
+
+export type GoalRow = {
+  id: string;
+  user_id: string;
+  title: string;
+  category: string;
+  target_value: number;
+  current_value: number;
+  unit: string;
+  status: string;
+  created_at: string;
+};
+
+export type TravelRow = {
+  id: string;
+  user_id: string;
+  mode: string;
+  origin_label: string;
+  destination_label: string;
+  distance_km: number;
+  trips_per_week: number;
+  created_at: string;
+};
+
+export type AchievementRow = {
+  id: string;
+  user_id: string;
+  badge_code: string;
+  created_at: string;
+};

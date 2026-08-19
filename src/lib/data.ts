@@ -1,6 +1,14 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { DEFAULT_FACTORS, localDb as supabase } from "@/lib/local-db";
+import {
+  DEFAULT_FACTORS,
+  localDb as supabase,
+  type AchievementRow,
+  type CalculationRow,
+  type GoalRow,
+  type ProfileRow,
+  type TravelRow,
+} from "@/lib/local-db";
 import { indexFactors } from "@/lib/carbon";
 
 export const factorsQuery = queryOptions({
@@ -22,7 +30,7 @@ export const profileQuery = (userId: string) =>
         .eq("id", userId)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return (data as ProfileRow | null) ?? null;
     },
   });
 
@@ -37,7 +45,7 @@ export const calculationsQuery = (userId: string) =>
         .order("created_at", { ascending: false })
         .limit(12);
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as CalculationRow[];
     },
   });
 
@@ -51,7 +59,7 @@ export const goalsQuery = (userId: string) =>
         .eq("user_id", userId)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as GoalRow[];
     },
   });
 
@@ -66,7 +74,7 @@ export const travelQuery = (userId: string) =>
         .order("created_at", { ascending: false })
         .limit(20);
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as TravelRow[];
     },
   });
 
@@ -79,7 +87,7 @@ export const achievementsQuery = (userId: string) =>
         .select("*")
         .eq("user_id", userId);
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as AchievementRow[];
     },
   });
 
