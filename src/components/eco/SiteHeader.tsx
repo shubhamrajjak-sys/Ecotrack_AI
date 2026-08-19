@@ -58,10 +58,30 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          {user ? (
-            <Button variant="hero" size="sm" asChild>
-              <Link to="/dashboard">Open dashboard</Link>
-            </Button>
+          {loading ? (
+            <span className="h-8 w-32 animate-pulse rounded-full bg-accent/50" aria-hidden />
+          ) : user ? (
+            <>
+              <Link
+                to="/profile"
+                className="flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-sm text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
+              >
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="" className="size-7 rounded-full object-cover" />
+                ) : (
+                  <span className="flex size-7 items-center justify-center rounded-full bg-gradient-primary text-xs font-semibold text-primary-foreground">
+                    {initial}
+                  </span>
+                )}
+                <span className="max-w-[10rem] truncate">{user.email}</span>
+              </Link>
+              <Button variant="hero" size="sm" asChild>
+                <Link to="/dashboard">Open dashboard</Link>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => void signOut()}>
+                Sign out
+              </Button>
+            </>
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>
