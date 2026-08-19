@@ -1,69 +1,65 @@
-import type { Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { supabase } from "@/integrations/supabase/client";
-import { completeOAuthRedirect } from "@/lib/auth-redirect";
+import { NAME_KEY, ensureLocalProfile, localUserId } from "@/lib/local-db";
+
+export type LocalUser = {
+  id: string;
+  name: string;
+};
 
 type AuthState = {
-  user: User | null;
-  session: Session | null;
+  user: LocalUser | null;
   loading: boolean;
-  oauthCompleted: boolean;
-  signOut: () => Promise<void>;
+  signIn: (name: string) => LocalUser;
+  signOut: () => void;
 };
 
 const AuthContext = createContext<AuthState>({
   user: null,
-  session: null,
   loading: true,
-  oauthCompleted: false,
-  signOut: async () => {},
+  signIn: () => ({ id: "", name: "" }),
+  signOut: () => {},
 });
 
+function readStoredName(): string | null {
+  if (typeof window === "undefined") return null;
+  const raw = window.localStorage.getItem(NAME_KEY);
+  const name = raw?.trim();
+  return name ? name : null;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<LocalUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [oauthCompleted, setOAuthCompleted] = useState(false);
 
   useEffect(() => {
-    let active = true;
-    let initializing = true;
-
-    // Subscribe before reading storage so a redirect/session event cannot be
-    // missed between the initial lookup and listener registration.
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
-      if (!active) return;
-      setSession(next);
-      if (!initializing) setLoading(false);
-    });
-
-    void (async () => {
-      const completed = await completeOAuthRedirect();
-      const { data, error } = await supabase.auth.getSession();
-      if (!active) return;
-      initializing = false;
-      setOAuthCompleted(completed);
-      setSession(error ? null : data.session);
-      setLoading(false);
-    })();
-
-    return () => {
-      active = false;
-      sub.subscription.unsubscribe();
-    };
+    const name = readStoredName();
+    if (name) {
+      const next = { id: localUserId(name), name };
+      ensureLocalProfile(next.id, name);
+      setUser(next);
+    }
+    setLoading(false);
   }, []);
 
   const value = useMemo<AuthState>(
     () => ({
-      session,
-      user: session?.user ?? null,
+      user,
       loading,
-      oauthCompleted,
-      signOut: async () => {
-        await supabase.auth.signOut();
+      signIn: (rawName: string) => {
+        const name = rawName.trim();
+        const next = { id: localUserId(name), name };
+        window.localStorage.setItem(NAME_KEY, name);
+        ensureLocalProfile(next.id, name);
+        setUser(next);
+        return next;
+      },
+      signOut: () => {
+        window.localStorage.removeItem(NAME_KEY);
+        setUser(null);
       },
     }),
-    [session, loading, oauthCompleted],
+    [user, loading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
