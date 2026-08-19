@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import {
   BarChart3,
@@ -31,6 +31,11 @@ const NAV = [
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { signOut } = useAuth();
+  const navigate = useNavigate();
+  const changeName = () => {
+    signOut();
+    void navigate({ to: "/auth", replace: true });
+  };
 
   return (
     <div className="relative min-h-screen bg-gradient-hero">
@@ -73,7 +78,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        <Button variant="ghost" className="justify-start" onClick={() => signOut()}>
+        <Button variant="ghost" className="justify-start" onClick={changeName}>
           <LogOut className="size-4" /> Change name
         </Button>
       </aside>

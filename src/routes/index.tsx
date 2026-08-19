@@ -292,7 +292,7 @@ function Landing() {
 
             <div className="mt-10 flex flex-wrap gap-3">
               <Button variant="hero" size="lg" asChild>
-                <Link to="/auth" search={{ mode: "signup" }}>
+                <Link to="/auth">
                   Create your account <ArrowRight className="size-4" />
                 </Link>
               </Button>

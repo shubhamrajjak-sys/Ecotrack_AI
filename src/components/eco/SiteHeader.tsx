@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { motion, useScroll, useMotionValueEvent } from "motion/react";
 import { Leaf, Menu, X } from "lucide-react";
 import { useState } from "react";
@@ -18,6 +18,11 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const { scrollY } = useScroll();
   const { user, loading, signOut } = useAuth();
+  const navigate = useNavigate();
+  const changeName = () => {
+    signOut();
+    void navigate({ to: "/auth", replace: true });
+  };
   const initial = (user?.name ?? "?").charAt(0).toUpperCase();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -77,7 +82,7 @@ export function SiteHeader() {
               <Button variant="hero" size="sm" asChild>
                 <Link to="/dashboard">Open dashboard</Link>
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => signOut()}>
+              <Button variant="ghost" size="sm" onClick={changeName}>
                 Change name
               </Button>
             </>
