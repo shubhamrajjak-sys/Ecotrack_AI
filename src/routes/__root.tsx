@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { completeOAuthRedirect } from "@/lib/auth-redirect";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -129,6 +130,16 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+
+  // Complete an OAuth redirect that landed on ANY route (e.g. the site root on
+  // production when Supabase falls back to the Site URL) instead of /auth/callback.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.pathname.startsWith("/auth")) return; // handled by the callback route
+    void completeOAuthRedirect().then((ok) => {
+      if (ok) void router.navigate({ to: "/dashboard" });
+    });
+  }, [router]);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
