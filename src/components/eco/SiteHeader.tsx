@@ -17,7 +17,9 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { scrollY } = useScroll();
-  const { user } = useAuth();
+  const { user, loading, signOut } = useAuth();
+  const avatarUrl = (user?.user_metadata?.["avatar_url"] as string | undefined) ?? undefined;
+  const initial = (user?.email ?? "?").charAt(0).toUpperCase();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 24));
