@@ -60,17 +60,22 @@ function AuthPage() {
         if (error) throw error;
         toast.success("Password reset link sent", { description: "Check your inbox." });
       } else if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/onboarding`,
+            emailRedirectTo: window.location.origin,
             data: { display_name: name || email.split("@")[0] },
           },
         });
         if (error) throw error;
-        toast.success("Account created", { description: "Let's set up your profile." });
-        void navigate({ to: "/onboarding" });
+        if (data.session) {
+          toast.success("Account created", { description: "Let's set up your profile." });
+          void navigate({ to: "/onboarding" });
+        } else {
+          toast.success("Check your email to confirm your account");
+          void setMode("signin");
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
