@@ -1,18 +1,13 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { localDb as supabase } from "@/lib/local-db";
-import { indexFactors, type EmissionFactor } from "@/lib/carbon";
+import { DEFAULT_FACTORS, localDb as supabase } from "@/lib/local-db";
+import { indexFactors } from "@/lib/carbon";
 
 export const factorsQuery = queryOptions({
   queryKey: ["emission_factors"],
-  staleTime: 1000 * 60 * 30,
+  staleTime: Infinity,
   queryFn: async () => {
-    const { data, error } = await supabase
-      .from("emission_factors")
-      .select("*")
-      .order("category");
-    if (error) throw error;
-    const rows = (data ?? []) as EmissionFactor[];
+    const rows = DEFAULT_FACTORS;
     return { rows, index: indexFactors(rows) };
   },
 });
