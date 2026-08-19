@@ -1,5 +1,7 @@
 # EcoTrack AI
 
+**Live app**: https://ecotrack-ai-beta.vercel.app/
+
 Build a premium, modern, animated web application called “EcoTrack AI”.
 
 
@@ -1428,7 +1430,7 @@ The final result should be suitable for an AVINYA 2026 sustainability hackathon 
 
 REAL DATA → CARBON ANALYSIS → AI → ACTION → IMPACT
 
-**Live app**: https://ecotrackaiten.lovable.app
+**Live app**: https://ecotrack-ai-beta.vercel.app/
 
 ## Development
 
