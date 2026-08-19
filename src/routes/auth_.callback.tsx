@@ -1,9 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
-import { toast } from "sonner";
 
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/auth_/callback")({
   ssr: false,
@@ -21,44 +20,13 @@ export const Route = createFileRoute("/auth_/callback")({
 
 function AuthCallback() {
   const navigate = useNavigate();
+  const { loading, user } = useAuth();
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function finish() {
-      const url = new URL(window.location.href);
-      const code = url.searchParams.get("code");
-      const errorDescription = url.searchParams.get("error_description");
-
-      if (errorDescription) {
-        toast.error("Google sign-in failed", { description: errorDescription });
-        void navigate({ to: "/auth", search: { mode: "signin" } });
-        return;
-      }
-
-      if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (error) {
-          toast.error("Google sign-in failed", { description: error.message });
-          void navigate({ to: "/auth", search: { mode: "signin" } });
-          return;
-        }
-      }
-
-      const { data } = await supabase.auth.getSession();
-      if (cancelled) return;
-      if (data.session) {
-        void navigate({ to: "/dashboard" });
-      } else {
-        void navigate({ to: "/auth", search: { mode: "signin" } });
-      }
-    }
-
-    void finish();
-    return () => {
-      cancelled = true;
-    };
-  }, [navigate]);
+    if (loading) return;
+    if (user) void navigate({ to: "/dashboard", replace: true });
+    else void navigate({ to: "/auth", search: { mode: "signin" }, replace: true });
+  }, [loading, user, navigate]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-hero px-4">

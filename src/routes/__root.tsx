@@ -7,12 +7,12 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { completeOAuthRedirect } from "@/lib/auth-redirect";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -131,16 +131,6 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
-  // Complete an OAuth redirect that landed on ANY route (e.g. the site root on
-  // production when Supabase falls back to the Site URL) instead of /auth/callback.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.location.pathname.startsWith("/auth")) return; // handled by the callback route
-    void completeOAuthRedirect().then((ok) => {
-      if (ok) void router.navigate({ to: "/dashboard" });
-    });
-  }, [router]);
-
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
@@ -153,10 +143,33 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        <SessionAwareOutlet />
         <Toaster position="top-center" richColors />
       </AuthProvider>
     </QueryClientProvider>
   );
+}
+
+function SessionAwareOutlet() {
+  const { loading, oauthCompleted, user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && oauthCompleted && user) {
+      void router.navigate({ to: "/dashboard", replace: true });
+    }
+  }, [loading, oauthCompleted, user, router]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-hero px-4">
+        <div className="glass-panel flex items-center gap-3 rounded-3xl px-8 py-6 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" />
+          Restoring your session…
+        </div>
+      </div>
+    );
+  }
+
+  return <Outlet />;
 }

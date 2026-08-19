@@ -70,7 +70,7 @@ function AuthPage() {
         });
         if (error) throw error;
         if (data.session) {
-          toast.success("Account created", { description: "/pre>Let's set up your profile." });
+          toast.success("Account created", { description: "Let's set up your profile." });
           void navigate({ to: "/onboarding" });
         } else {
           toast.success("Check your email to confirm your account");
