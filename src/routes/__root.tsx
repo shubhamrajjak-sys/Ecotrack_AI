@@ -129,16 +129,6 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const router = useRouter();
-
-  useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-      router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
-    });
-    return () => sub.subscription.unsubscribe();
-  }, [router, queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -151,21 +141,14 @@ function RootComponent() {
 }
 
 function SessionAwareOutlet() {
-  const { loading, oauthCompleted, user } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && oauthCompleted && user) {
-      void router.navigate({ to: "/dashboard", replace: true });
-    }
-  }, [loading, oauthCompleted, user, router]);
+  const { loading } = useAuth();
 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-hero px-4">
         <div className="glass-panel flex items-center gap-3 rounded-3xl px-8 py-6 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
-          Restoring your session…
+          Loading EcoTrack AI…
         </div>
       </div>
     );
