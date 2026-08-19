@@ -1428,17 +1428,7 @@ The final result should be suitable for an AVINYA 2026 sustainability hackathon 
 
 REAL DATA → CARBON ANALYSIS → AI → ACTION → IMPACT
 
-This project was built with [Lovable](https://lovable.dev).
-
 **Live app**: https://ecotrackaiten.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/decff7e5-631a-4cf5-b9a3-99b0383b42f3).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
