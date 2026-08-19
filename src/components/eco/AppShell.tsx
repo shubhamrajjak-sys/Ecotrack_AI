@@ -5,6 +5,7 @@ import {
   Bot,
   Calculator,
   LayoutDashboard,
+  Home,
   Leaf,
   LogOut,
   Target,
@@ -19,6 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 const NAV = [
+  { to: "/", label: "Home", icon: Home },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/calculator", label: "Calculator", icon: Calculator },
   { to: "/coach", label: "AI Coach", icon: Bot },
@@ -97,7 +99,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Mobile bottom navigation */}
       <nav className="glass-panel fixed inset-x-3 bottom-3 z-50 flex items-center justify-between rounded-3xl px-2 py-2 lg:hidden">
-        {NAV.slice(0, 5).map((item) => {
+        {[NAV[0], ...NAV.slice(1, 5)].map((item) => {
           const active = pathname === item.to;
           return (
             <Link
