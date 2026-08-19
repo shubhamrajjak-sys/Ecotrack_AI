@@ -71,13 +71,13 @@ export function localUserId(name: string) {
 
 export function ensureLocalProfile(userId: string, displayName: string) {
   const db = read();
-  const existing = db.profiles!.find((p) => p['id'] === userId);
+  const existing = db['profiles']!.find((p) => p['id'] === userId);
   if (existing) {
     if (!existing['display_name']) existing['display_name'] = displayName;
     write(db);
     return;
   }
-  db.profiles!.push({
+  db['profiles']!.push({
     id: userId,
     display_name: displayName,
     department: "",
@@ -186,7 +186,7 @@ export const localDb = {
     const db = read();
     if (fn === "leaderboard") {
       const limit = Number(args?.['_limit'] ?? 25);
-      const rows = db.profiles!
+      const rows = db['profiles']!
         .filter((p) => p['share_on_leaderboard'] !== false)
         .map((p) => ({
           user_id: p['id'],
@@ -200,13 +200,13 @@ export const localDb = {
       return { data: rows, error: null };
     }
     if (fn === "campus_analytics") {
-      const calcs = db.carbon_calculations!;
+      const calcs = db['carbon_calculations']!;
       const n = calcs.length || 1;
       const sum = (k: string) => calcs.reduce((s, c) => s + Number(c[k] ?? 0), 0);
       return {
         data: [
           {
-            participants: db.profiles!.length,
+            participants: db['profiles']!.length,
             calculations: calcs.length,
             avg_total_kg: sum("total_kg") / n,
             avg_transport_kg: sum("transport_kg") / n,
