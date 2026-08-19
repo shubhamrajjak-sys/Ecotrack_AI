@@ -130,6 +130,16 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
+  // Complete an OAuth redirect that landed on ANY route (e.g. the site root on
+  // production when Supabase falls back to the Site URL) instead of /auth/callback.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.pathname.startsWith("/auth")) return; // handled by the callback route
+    void completeOAuthRedirect().then((ok) => {
+      if (ok) void router.navigate({ to: "/dashboard" });
+    });
+  }, [router]);
+
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
