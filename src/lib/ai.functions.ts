@@ -80,7 +80,7 @@ export const coachChat = createServerFn({ method: "POST" })
 
     try {
       const result = streamText({
-        model: openai("gpt-5.4"),
+        model: openai("gpt-5.6"),
         system,
         messages: data.messages,
         providerOptions: {
