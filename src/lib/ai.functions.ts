@@ -57,7 +57,7 @@ const ChatInput = z.object({
 export const coachChat = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => ChatInput.parse(input))
   .handler(async ({ data }) => {
-    const apiKey = process.env["LOVABLE_API_KEY"];
+    const apiKey = process.env["OPENAI_API_KEY"];
     if (!apiKey) {
       return { ok: false as const, reason: "not_configured" as const };
     }
@@ -74,18 +74,13 @@ export const coachChat = createServerFn({ method: "POST" })
       `DATA: ${JSON.stringify(snapshot)}`,
     ].join("\n");
 
-    const lovable = createOpenAI({
-      baseURL: "https://ai.gateway.lovable.dev/v1",
-      apiKey,
-      headers: {
-        "Lovable-API-Key": apiKey,
-        "X-Lovable-AIG-SDK": "vercel-ai-sdk",
-      },
-    });
+    const openai = createOpenAI({
+  apiKey,
+});
 
     try {
       const result = streamText({
-        model: lovable.responses("openai/gpt-5.6-sol"),
+        model: openai("gpt-5.4"),
         system,
         messages: data.messages,
         providerOptions: {
