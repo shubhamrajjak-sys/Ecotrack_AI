@@ -203,6 +203,65 @@ export const coachChat = createServerFn({ method: "POST" })
     const latestUserMsg =
       [...data.messages].reverse().find((m) => m.role === "user")?.content || "";
 
+    const sustainabilityKeywords = [
+      "carbon",
+      "co2",
+      "emission",
+      "emissions",
+      "sustainability",
+      "sustainable",
+      "environment",
+      "climate",
+      "energy",
+      "electricity",
+      "power",
+      "transport",
+      "travel",
+      "commute",
+      "vehicle",
+      "bus",
+      "train",
+      "bike",
+      "bicycle",
+      "fuel",
+      "petrol",
+      "diesel",
+      "food",
+      "diet",
+      "waste",
+      "recycle",
+      "recycling",
+      "water",
+      "plastic",
+      "paper",
+      "eco",
+      "ecological",
+      "green",
+      "goal",
+      "footprint",
+      "reduce",
+      "reduction",
+      "saving",
+      "savings",
+      "campus",
+      "environmental",
+      "renewable",
+      "solar",
+    ];
+
+    const question = latestUserMsg.toLowerCase();
+
+    const isSustainabilityQuestion = sustainabilityKeywords.some((keyword) =>
+      question.includes(keyword),
+    );
+
+    if (!isSustainabilityQuestion) {
+      return {
+        ok: true as const,
+        text: "I'm the EcoTrack AI Coach. I can only help with carbon emissions, sustainability goals, travel, energy, food, waste, and other EcoTrack-related topics. Please ask a sustainability-related question.",
+      };
+    }
+
     const apiKey =
       process.env["OPENAI_API_KEY"] ||
       process.env["GROQ_API_KEY"] ||
