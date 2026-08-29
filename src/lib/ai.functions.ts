@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createOpenAI } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { generateText } from "ai";
 import { z } from "zod";
 
 const SnapshotInput = z.object({
@@ -57,8 +57,11 @@ const ChatInput = z.object({
 export const coachChat = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => ChatInput.parse(input))
   .handler(async ({ data }) => {
-    const apiKey = process.env["OPENAI_API_KEY"];
-    if (!apiKey) {
+    const apiKey =
+      process.env["OPENAI_API_KEY"] ||
+      process.env["VITE_OPENAI_API_KEY"];
+
+    if (!apiKey || apiKey.trim() === "" || apiKey === "your-openai-api-key") {
       return { ok: false as const, reason: "not_configured" as const };
     }
 
@@ -75,37 +78,33 @@ export const coachChat = createServerFn({ method: "POST" })
     ].join("\n");
 
     const openai = createOpenAI({
-  apiKey,
-});
+      apiKey,
+    });
+
+    const modelName = process.env["OPENAI_MODEL"] || "gpt-4o-mini";
 
     try {
-      const result = streamText({
-        model: openai("gpt-5.6"),
+      const result = await generateText({
+        model: openai(modelName),
         system,
         messages: data.messages,
-        providerOptions: {
-          openai: {
-            forceReasoning: true,
-            reasoningEffort: "low",
-            reasoningSummary: "auto",
-            store: false,
-            include: ["reasoning.encrypted_content"],
-          },
-        },
       });
 
-      const text = await result.text;
+      const text = result.text;
       return {
         ok: true as const,
         text: text?.trim() || "I could not produce an answer for that. Try rephrasing your question.",
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown AI gateway error";
-      const status = /402/.test(message)
-        ? "Your workspace is out of AI credits. Add credits to keep using the AI Coach."
-        : /429/.test(message)
-          ? "The AI Coach is rate limited right now. Please try again in a moment."
-          : message;
+      let status = message;
+      if (/401|invalid_api_key|Incorrect API key/i.test(message)) {
+        status = "Invalid OpenAI API key. Please check your OPENAI_API_KEY in the .env file.";
+      } else if (/402|insufficient_quota|out of AI credits/i.test(message)) {
+        status = "Your OpenAI account is out of credits or quota. Please check your billing at platform.openai.com.";
+      } else if (/429|rate limit/i.test(message)) {
+        status = "The AI Coach is rate limited right now. Please try again in a moment.";
+      }
       return { ok: false as const, reason: "error" as const, message: status };
     }
   });
